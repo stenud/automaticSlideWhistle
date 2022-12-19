@@ -34,7 +34,7 @@ bool calibrateMotorPos_bool = true;
 
 void setup() {
   Serial.begin(115200);
-  pinMode(instr0.extendedButton, INPUT);
+  pinMode(instr0.extendedButton, INPUT_PULLUP);
   instr0.stepper->setMaxSpeed(1000);
   for(int i = 6; i <= 13; i++) {  // Temporary until all instruments are built
     pinMode(i, OUTPUT);
@@ -109,11 +109,10 @@ void calibrateMotorPos(struct Instrument *instr) {
   instr->stepper->setSpeed(-instr->speed);
 
   while (calibrateMotorPos_bool) {
-    bool extended_state = digitalRead(instr->extendedButton);
+    bool inv_extended_state = digitalRead(instr->extendedButton);
 
-    if (extended_state) {
+    if (!inv_extended_state) {
       instr->stepper->setCurrentPosition(0);
-      //instr->dir = 1;
       calibrateMotorPos_bool = false;
       break;
     }
