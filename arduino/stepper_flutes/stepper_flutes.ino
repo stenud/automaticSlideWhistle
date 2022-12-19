@@ -61,7 +61,7 @@ void loop() {
   }
 
   if (test) { // for simulating one serial input
-    mapInput(0, 100);    
+    mapInput(0, 255);    
     test = false;    
   }
 
@@ -72,7 +72,7 @@ void loop() {
 void mapInput(int ctlAndId, int value) {
   switch(ctlAndId) {
     case 0:
-      instr0.moveTo = map(value, 0, 255, 0, 3300);
+      instr0.moveTo = map(value, 0, 255, 0, 3250);
       instr0.stepperCtlChanged = true;
       break;
     case 10:
