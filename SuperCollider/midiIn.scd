@@ -7,51 +7,58 @@ MIDIdef.freeAll;
 
 MIDIFunc.trace(false);
 
-
-// RUN THIS BLOCK OF CODE
 (
-var fanOnOff = [false,false,false,false,false,false,false,false];
+var fanOnOff = Array.fill(8,{false});
 
 m = (); // create empty event for midi
 m.input = {
 	MIDIdef.freeAll;
 	MIDIdef.cc(\input, {
 		arg val, num, chan, src;
-		switch(num,
-			61,{
-				if(fanOnOff[0], {
-					f.setFanVel(0, val.linlin(0,127,0,255).asInteger);
-				}, {
-					f.setFanVelSilent(0, val.linlin(0,127,0,255).asInteger);
+		case
+		{(num >= 61) && (num <= 68)}
+		{
+			var id = num - 61;
+			if(fanOnOff[id], {
+				f.setFanVel(id, val.linlin(0,127,0,255).asInteger);
+			}, {
+				f.setFanVelSilent(id, val.linlin(0,127,0,255).asInteger);
 			});
-			},
-			31,{ f.setStepperPos( 0, val.linlin(0,127,0,255).asInteger ) },
-			21,{
-				if(val == 127, {
-					fanOnOff[0] = true;
-					f.setFanVel(0);
-					m.launchControlLights(24,60);
-				},{
-					fanOnOff[0] = false;
-					a.sendVal(20, 0);
-					m.launchControlLights(24,12);
-					m.launchControlToggle(8,0); // toggle off for bottom button
-					m.launchControlLights(32,12); // toggle off for bottom button
-				})
-			},
-			11,{
-				if(val == 127, {
-					fanOnOff[0] = true;
-					f.setFanVel(0);
-					m.launchControlLights(32,60);
-				},{
-					fanOnOff[0] = false;
-					a.sendVal(20, 0);
-					m.launchControlLights(32,12);
-				})
-			},
-			74,{a.sendVal(9, 0)}, // re-calibrate motor pos
-		);
+		}
+		{(num >= 31) && (num <= 38)}
+		{
+			var id = num - 31;
+			f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
+		}
+		{(num >= 21) && (num <= 28)}
+		{
+			var id = num - 21;
+			if(val == 127, {
+				fanOnOff[id] = true;
+				f.setFanVel(id);
+				m.launchControlLights(id+24,60); // index 24-31
+			},{
+				fanOnOff[id] = false;
+				a.sendVal(id+20, 0);
+				m.launchControlLights(id+24,12); // index 24-31
+				m.launchControlToggle(id+8,0); // toggle off for bottom button, index 8-15
+				m.launchControlLights(id+32,12); // toggle off for bottom button, index 32-39
+			})
+		}
+		{(num >= 11) && (num <= 18)}
+		{
+			var id = num - 11;
+			if(val == 127, {
+				fanOnOff[id] = true;
+				f.setFanVel(id);
+				m.launchControlLights(id+32,60);
+			},{
+				fanOnOff[id] = false;
+				a.sendVal(id+20, 0);
+				m.launchControlLights(id+32,12);
+			})
+		}
+		{num == 74} {a.sendVal(9, 0)}; // re-calibrate motor pos
 	});
 };
 
