@@ -10,21 +10,30 @@ MIDIIn.connectAll;
 
 f = (); // create empty event for functions
 
+f.setStepperPosRout = Array.fill(8, {nil});
 
 f.setStepperPos = { // id must be 0-7 and val 0-255
 	arg self, id, val;
-	f.setStepperPosRout.stop;
-	f.setStepperPosRout = Routine {
+	if( f.setStepperPosRout[id] != nil, {
+		f.setStepperPosRout[id].stop;
+		f.setStepperPosRout[id] = nil;
+	});
+	f.setStepperPosRout[id] = Routine {
 		0.05.wait;
 		a.sendVal(id, val);
 	}.play;
 };
 
+f.setFanVelRout = Array.fill(8, {nil});
+
 f.setFanVel = { // id must be 0-7 and val 0-255
 	arg self, id, val;
 	if(val != nil, {fanVel[id] = val});
-	f.setFanVelRout.stop;
-	f.setFanVelRout = Routine {
+	if( f.setFanVelRout[id] != nil, {
+		f.setFanVelRout[id].stop;
+		f.setFanVelRout[id] = nil;
+	});
+	f.setFanVelRout[id] = Routine {
 		0.02.wait;
 		a.sendVal(id+20, fanVel[id]); // air control is 20-27
 	}.play;
