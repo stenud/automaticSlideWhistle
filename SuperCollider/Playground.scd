@@ -10,3 +10,6 @@ var val = 0;
 a.sendVal(0, val); // stepper position
 a.sendVal(20, val); // air speed
 )
+
+f.setFanVelRnd(\start);
+f.setFanVelRnd(\stop);

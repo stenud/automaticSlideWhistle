@@ -8,8 +8,6 @@ MIDIdef.freeAll;
 MIDIFunc.trace(false);
 
 (
-var fanOnOff = Array.fill(8,{false});
-
 m = (); // create empty event for midi
 m.input = {
 	MIDIdef.freeAll;
@@ -19,11 +17,16 @@ m.input = {
 		{(num >= 61) && (num <= 68)}
 		{
 			var id = num - 61;
-			if(fanOnOff[id], {
+			if(f.fanOnOff[id], {
 				f.setFanVel(id, val.linlin(0,127,0,255).asInteger);
 			}, {
 				f.setFanVelSilent(id, val.linlin(0,127,0,255).asInteger);
 			});
+		}
+		{(num >= 51) && (num <= 58)}
+		{
+			var id = num - 51;
+			f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
 		}
 		{(num >= 31) && (num <= 38)}
 		{
@@ -34,12 +37,10 @@ m.input = {
 		{
 			var id = num - 21;
 			if(val == 127, {
-				fanOnOff[id] = true;
-				f.setFanVel(id);
+				f.setFanOnOff(id, \on);
 				m.launchControlLights(id+24,60); // index 24-31
 			},{
-				fanOnOff[id] = false;
-				a.sendVal(id+20, 0);
+				f.setFanOnOff(id, \off);
 				m.launchControlLights(id+24,12); // index 24-31
 				m.launchControlToggle(id+8,0); // toggle off for bottom button, index 8-15
 				m.launchControlLights(id+32,12); // toggle off for bottom button, index 32-39
@@ -49,12 +50,10 @@ m.input = {
 		{
 			var id = num - 11;
 			if(val == 127, {
-				fanOnOff[id] = true;
-				f.setFanVel(id);
+				f.setFanOnOff(id, \on);
 				m.launchControlLights(id+32,60);
 			},{
-				fanOnOff[id] = false;
-				a.sendVal(id+20, 0);
+				f.setFanOnOff(id, \off);
 				m.launchControlLights(id+32,12);
 			})
 		}

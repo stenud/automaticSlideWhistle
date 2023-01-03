@@ -10,7 +10,10 @@ a.port = SerialPort(
 
 
 a.sendVal = { | self, ctlAndId, value |
-	a.port.putAll( format("% %\n", ctlAndId.asInteger, value.asInteger) );
+	{
+		a.port.putAll( format("% %\n", ctlAndId.asInteger, value.asInteger) );
+		//format("% %\n", ctlAndId.asInteger, value.asInteger).post;
+	}.fork;
 };
 
 

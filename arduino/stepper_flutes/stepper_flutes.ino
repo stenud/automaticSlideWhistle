@@ -71,10 +71,11 @@ void testFans(int value);
 void moveStepper(struct Instrument *instr);
 void mapInput(int ctlAndId, int value);
 void calibrateMotorPos(struct Instrument *instr);
+void wrongInput(int ctlAndId);
 
 // Global variables
 bool calibrateMotorPos_bool = true;
-bool init_test = true;
+bool init_test = false;
 
 void setup() {
   Serial.begin(115200);
@@ -257,6 +258,17 @@ void mapInput(int ctlAndId, int value) {
     case 9:
       calibrateMotorPos_bool = true; // re-calibrate motor pos
       break;
+    default:
+      wrongInput(ctlAndId);
+  }
+}
+
+void wrongInput( int ctlAndId ) {
+  for(int i = 0; i < ctlAndId; i++) {
+    digitalWrite(13, HIGH);
+    delay(500);
+    digitalWrite(13, LOW);
+    delay(500);
   }
 }
 
