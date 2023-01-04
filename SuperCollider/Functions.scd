@@ -27,34 +27,48 @@ f.setStepperPos = { // id must be 0-7 and val 0-255
 	}.play;
 };
 
-f.setFanVelRout = Array.fill(8, {nil});
-
 f.setFanOnOff = {
 	arg self, id, onOff;
 	switch( onOff,
 		\on, {
 			f.fanOnOff[id] = true;
-			f.setFanVel(id);
+			f.setFanVel(id, nil, \start);
 		},
 		\off, {
 			f.fanOnOff[id] = false;
-			a.sendVal(id+20, 0);
+			f.setFanVel(id, nil, \stop);
 		},
 	);
 };
 
+f.setFanVelRout = Array.fill(8, {nil});
+
 f.setFanVel = { // id must be 0-7 and val 0-255
-	arg self, id, val;
+	arg self, id, val, startStop = nil;
 	if(val != nil, {fanVel[id] = val});
 	if( f.setFanVelRout[id] != nil, {
 		f.setFanVelRout[id].stop;
 		f.setFanVelRout[id] = nil;
 	});
-	f.setFanVelRout[id] = Routine {
-		0.02.wait;
-		a.sendVal(id+20, (fanVel[id] + fanVelRnd[id]).max(0).min(255).asInteger ); // air control is 20-27
-		//format( "%: %", id, (fanVel[id] + fanVelRnd[id]).max(0).min(255) ).postln;
-	}.play;
+	switch( startStop,
+		\start, {
+			f.setFanVelRout[id] = Routine {
+				a.sendVal(id+20, 255); // air control is 20-27
+				0.2.wait;
+				a.sendVal(id+20, fanVel[id]); // air control is 20-27
+			}.play;
+		},
+		\stop, {
+			a.sendVal(id+20, 0);
+		},
+		{ // default
+			f.setFanVelRout[id] = Routine {
+				0.05.wait;
+				a.sendVal(id+20, (fanVel[id] + fanVelRnd[id]).max(0).min(255).asInteger ); // air control is 20-27
+				//format( "%: %", id, (fanVel[id] + fanVelRnd[id]).max(0).min(255) ).postln;
+			}.play;
+		},
+	)
 };
 
 f.setFanVelSilent = {
@@ -78,12 +92,15 @@ f.setFanVelRnd = {
 					order = order.scramble;
 					order.do{|id|
 						if(f.fanOnOff[id], {
-							fanVelRnd[id] = rrand( fanVelRndMinMax[id].neg, fanVelRndMinMax[id] ).asInteger;
-							rrand(0.2, 0.6).wait;
-							f.setFanVel(id);
-							format( "%: %", id, fanVelRnd[id] ).postln;
+							rrand(0.1, 0.5).wait;
+							if(f.fanOnOff[id], {
+								fanVelRnd[id] = rrand( fanVelRndMinMax[id].neg, fanVelRndMinMax[id] ).asInteger;
+								f.setFanVel(id);
+								// format( "%: %", id, fanVelRnd[id] ).postln;
+							});
 						});
 					};
+					0.1.wait;
 				};
 			}.play;
 		},
@@ -92,6 +109,7 @@ f.setFanVelRnd = {
 				f.fanVelRndRout.stop;
 				f.fanVelRndRout = nil;
 			});
+			8.do{|id| fanVelRnd[id] = 0 };
 		},
 	);
 };
