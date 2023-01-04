@@ -31,6 +31,23 @@ m.input = {
 				};
 			});
 		}
+		{num == 78} // send select (down)
+		{
+			if(val == 127, {
+				f.setStepperPosRnd(\start);
+				m.launchControlLights(45, 15, 0); // 62 = yellow
+				m.launchControlLights(45, 15, 1); // 60 = green
+				2.do {|template| // do for both first and second user template
+					m.launchControlToggle(21, 127, template); // toggle off for bottom button
+				};
+			}, {
+				f.setStepperPosRnd(\stop);
+				2.do {|template| // do for both first and second user template
+					m.launchControlLights(45, 12, template);
+					m.launchControlToggle(21, 0, template); // toggle off for bottom button
+				};
+			});
+		}
 		{(num >= 21) && (num <= 28)}
 		{
 			var id = num - 21;
@@ -106,6 +123,11 @@ m.input = {
 				{
 					var id = num - 51;
 					f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
+				}
+				{(num >= 41) && (num <= 48)}
+				{
+					var id = num - 41;
+					f.setStepperPosRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
 				}
 				{(num >= 31) && (num <= 38)}
 				{

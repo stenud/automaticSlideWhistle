@@ -13,3 +13,6 @@ a.sendVal(20, val); // air speed
 
 f.setFanVelRnd(\start);
 f.setFanVelRnd(\stop);
+
+f.setStepperPosRnd(\start);
+f.setStepperPosRnd(\stop);
