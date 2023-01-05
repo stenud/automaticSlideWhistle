@@ -16,3 +16,33 @@ f.setFanVelRnd(\stop);
 
 f.setStepperPosRnd(\start);
 f.setStepperPosRnd(\stop);
+
+(
+8.do {|id|
+	f.setStepperPos( id, 0 )
+};
+)
+
+(
+8.do {|id|
+	f.setFanVel(id, 96);
+}
+)
+
+(
+// y = [10, 33, 54, 75, 93, 111, 128, 144, 160, 177, 198];
+y = [10, 54, 93, 111, 144];
+y = y.scramble;
+x = Routine {
+	loop {
+		y.do {|pitch|
+			8.do {|id|
+				f.setStepperPos( id, pitch );
+			};
+			pitch.postln;
+			5.wait;
+		};
+	};
+}.play;
+)
+x.stop

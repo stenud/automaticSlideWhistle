@@ -101,6 +101,11 @@ m.input = {
 							f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
 						};
 					},
+					41, {
+						8.do {|id|
+							f.setStepperPosRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
+						};
+					},
 					31, {
 						8.do {|id|
 							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
