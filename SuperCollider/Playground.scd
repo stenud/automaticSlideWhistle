@@ -120,8 +120,32 @@ x = Routine {
 )
 x.stop;
 
+[false, true, false, false];
+x = [0, 1, 2, 3]
+x = x.insert(0,100)
+x
 
+(
+x = Routine {
+	var pitch = \c5;
+	var dict = p.mf;
+	8.do{|id|
+		f.playPitch(id, pitch, dict);
+		if(id > 0, {
+			m.lcSetToggleLights(id-1, \off);
+			f.setFanOnOff(id-1, \off);
+		});
+		5.wait;
+	};
+}.play;
+)
+x.stop;
 
-
+f.playChord([\e6], p.mf, \sort);
+f.playChord([\g4, \gs4], p.mp, \rand);
+f.playChord([\g4, \gs4, \a4], p.mp, \rand);
+f.playChord([\g4, \gs4, \a4, \as4], p.mp, \rand);
+f.playChord([\g4, \gs4, \a4, \as4, \b4], p.mp, \rand);
+f.playChord([\g4, \gs4, \a4, \as4, \b4, \c5], p.mp, \rand);
 
 

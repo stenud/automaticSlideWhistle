@@ -13,11 +13,7 @@ f.playPitch = {
 	var pitch = dict.at(pitchSymb), start = nil;
 	if( f.fanOnOff[id].not, {
 		start = \start;
-		m.launchControlLights(id+32, 62, 0);
-		m.launchControlLights(id+32, 60, 1);
-		2.do {|template| // do for both first and second user template
-			m.launchControlToggle(id+8, 127, template); // toggle off for bottom button, index 8-15
-		};
+		m.lcSetToggleLights(id, \on);
 	});
 	f.setStepperPos(id, pitch[1]);
 	f.setFanVel(id, pitch[0], start);
@@ -30,7 +26,7 @@ f.play8Pitches = {
 	};
 };
 
-f.playChord = {
+f.playChord = { // spreads a pitch array of up to 8 notes on all flutes
 	arg self, pitches, dict, order = \rand;
 	var numPitches, playArr = [], div, mod;
 
@@ -64,7 +60,7 @@ f.setStepperPosRout = Array.fill(8, {nil});
 f.setStepperPos = { // id must be 0-7 and val 0-255
 	arg self, id, val;
 	if(val != nil, {
-		if(val > stepperPos[id], {
+		if(val < stepperPos[id], {
 			stepperPos[id] = (val - 3).max(0); // move slightly further if coming from above
 		}, {
 			stepperPos[id] = val;
