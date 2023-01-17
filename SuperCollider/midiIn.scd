@@ -5,7 +5,7 @@ MIDIIn.connectAll;
 
 MIDIdef.freeAll;
 
-MIDIFunc.trace(true);
+MIDIFunc.trace(false);
 
 );
 
@@ -283,6 +283,40 @@ m.input = {
 							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
 						};
 					},
+					32, {
+						4.do {|id|
+							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
+						};
+					},
+					33, {
+						4.do {|id|
+							f.setStepperPos( id+4, val.linlin(0,127,0,255).asInteger )
+						};
+					},
+					35, {
+						2.do {|id|
+							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
+						};
+					},
+					36, {
+						2.do {|id|
+							f.setStepperPos( id+2, val.linlin(0,127,0,255).asInteger )
+						};
+					},
+					37, {
+						2.do {|id|
+							f.setStepperPos( id+4, val.linlin(0,127,0,255).asInteger )
+						};
+					},
+					38, {
+						2.do {|id|
+							f.setStepperPos( id+6, val.linlin(0,127,0,255).asInteger )
+						};
+					},
+					42, { f.setStepperTilt(\lin, val.linlin(0,127,-1.0,1.0) ) },
+					52, { f.setStepperTilt(\peak, val.linlin(0,127,-1.0,1.0) ) },
+					62, { f.setStepperTilt(\zigzag, val.linlin(0,127,-1.0,1.0) ) },
+					63, { f.changeStepperSpeed(val.linlin(0,127,0,255).asInteger) },
 				);
 			},
 			1, {

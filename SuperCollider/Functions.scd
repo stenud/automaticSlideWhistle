@@ -5,6 +5,8 @@ var fanVelRnd = Array.fill(8, {0});
 var stepperPos = Array.fill(8, {0});
 var stepperPosRndMinMax = Array.fill(8, {0});
 var stepperPosRnd = Array.fill(8, {0});
+var stepperTilt = false;
+var stepperTiltVals = Array.fill(8, {1.0});
 
 f = (); // create empty event for functions
 
@@ -72,8 +74,36 @@ f.setStepperPos = { // id must be 0-7 and val 0-255
 	});
 	f.setStepperPosRout[id] = Routine {
 		0.05.wait;
-		a.sendVal(id, (stepperPos[id] + stepperPosRnd[id]).max(0).min(255).asInteger );
+		if( stepperTilt.not, {
+			a.sendVal(id, (stepperPos[id] + stepperPosRnd[id]).max(0).min(255).asInteger );
+		}, {
+			a.sendVal(id, ((stepperPos[id] + stepperTiltVals[id]).max(0).min(255) + stepperPosRnd[id]).max(0).min(255).asInteger );
+		});
 	}.play;
+};
+
+f.setStepperTilt = {
+	arg self, tiltOption, val;
+	8.do{|id|
+		switch(tiltOption,
+			\lin, { // / \
+				stepperTiltVals[id] = ((id-3.5) * val * 36.2858).asInteger;
+				f.setStepperPos(id);
+				stepperTilt = true;
+			},
+			\peak, { // ^
+				stepperTiltVals[id] = ( ((id-3.5).abs.neg + 1.75) * val * 72.5715 ).asInteger;
+				f.setStepperPos(id);
+				stepperTilt = true;
+			},
+			\zigzag, { // _-_-_-_-
+				stepperTiltVals[id] = ( (id.mod(2) - 0.5) * val * 254 ).asInteger;
+				f.setStepperPos(id);
+				stepperTilt = true;
+			},
+			\off, { stepperTilt = false },
+		);
+	};
 };
 
 f.stepperPosRndRout = nil;
@@ -97,7 +127,6 @@ f.setStepperPosRnd = {
 								rrand(0.1, 0.5).wait;
 								stepperPosRnd[id] = rrand( stepperPosRndMinMax[id].neg, stepperPosRndMinMax[id] ).asInteger;
 								f.setStepperPos(id);
-								// format( "%: %", id, stepperPosRnd[id] ).postln;
 							});
 						};
 					}, {
@@ -105,7 +134,6 @@ f.setStepperPosRnd = {
 							rrand(0.1, 0.5).wait;
 							stepperPosRnd[id] = rrand( stepperPosRndMinMax[id].neg, stepperPosRndMinMax[id] ).asInteger;
 							f.setStepperPos(id);
-							// format( "%: %", id, stepperPosRnd[id] ).postln;
 						};
 					});
 
@@ -219,6 +247,33 @@ f.setFanVelRnd = {
 f.setVelRndMinMax = {
 	arg self, id, val;
 	fanVelRndMinMax[id] = val;
+};
+
+f.changeStepperSpeedRout = Array.newClear(8);
+
+f.changeStepperSpeed = {
+	arg self, val, id = nil; // val: 0-255
+	if(id == nil, {
+		8.do{|id|
+			if( f.changeStepperSpeedRout[id] != nil, { // in case it is already running
+				f.changeStepperSpeedRout[id].stop;
+				f.changeStepperSpeedRout[id] = nil;
+			});
+			f.changeStepperSpeedRout[id] = Routine {
+				0.2.wait;
+				a.sendVal(id+10, val); // speed control: 10-17
+			}.play;
+		};
+	}, {
+		if( f.changeStepperSpeedRout[id] != nil, { // in case it is already running
+			f.changeStepperSpeedRout[id].stop;
+			f.changeStepperSpeedRout[id] = nil;
+		});
+		f.changeStepperSpeedRout[id] = Routine {
+			0.2.wait;
+			a.sendVal(id+10, val); // speed control: 10-17
+		}.play;
+	});
 };
 
 

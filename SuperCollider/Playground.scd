@@ -121,7 +121,7 @@ x = Routine {
 x.stop;
 
 [false, true, false, false];
-x = [0, 1, 2, 3]
+x = [2, 12, 2, 3]
 x = x.insert(0,100)
 x
 
@@ -150,5 +150,19 @@ f.playChord([\g4, \gs4, \a4, \as4, \b4, \c5], p.mp, \rand);
 
 y = 55;
 x = if((y >= 55) && (y <= 76), {0},{1});
+x.do{|item, index| [item, index].postln}
+27.linlin(0,127,-1.0,1.0)
+
+(
+var id = 3, val = -1;
+((id.mod(2) - 0.5) * val * 254).asInteger;
+)
+
+-3.abs.neg
+
+f.changeStepperSpeed(106);
+8.do{|id| f.setStepperPos(id, 0) };
+8.do{|id| f.setStepperPos(id, 20) };
+
 
 
