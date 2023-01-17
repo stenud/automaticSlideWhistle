@@ -77,6 +77,7 @@ f.setStepperPos = { // id must be 0-7 and val 0-255
 };
 
 f.stepperPosRndRout = nil;
+f.stepperPosRndInclSilent = false;
 
 f.setStepperPosRnd = {
 	arg self, startStop;
@@ -90,16 +91,24 @@ f.setStepperPosRnd = {
 			f.stepperPosRndRout = Routine {
 				loop {
 					order = order.scramble;
-					order.do{|id|
-						if(f.fanOnOff[id], {
-							rrand(0.1, 0.5).wait;
+					if( f.stepperPosRndInclSilent.not, {
+						order.do{|id|
 							if(f.fanOnOff[id], {
+								rrand(0.1, 0.5).wait;
 								stepperPosRnd[id] = rrand( stepperPosRndMinMax[id].neg, stepperPosRndMinMax[id] ).asInteger;
 								f.setStepperPos(id);
 								// format( "%: %", id, stepperPosRnd[id] ).postln;
 							});
-						});
-					};
+						};
+					}, {
+						order.do{|id|
+							rrand(0.1, 0.5).wait;
+							stepperPosRnd[id] = rrand( stepperPosRndMinMax[id].neg, stepperPosRndMinMax[id] ).asInteger;
+							f.setStepperPos(id);
+							// format( "%: %", id, stepperPosRnd[id] ).postln;
+						};
+					});
+
 					0.1.wait;
 				};
 			}.play;

@@ -148,4 +148,7 @@ f.playChord([\g4, \gs4, \a4, \as4], p.mp, \rand);
 f.playChord([\g4, \gs4, \a4, \as4, \b4], p.mp, \rand);
 f.playChord([\g4, \gs4, \a4, \as4, \b4, \c5], p.mp, \rand);
 
+y = 55;
+x = if((y >= 55) && (y <= 76), {0},{1});
+
 

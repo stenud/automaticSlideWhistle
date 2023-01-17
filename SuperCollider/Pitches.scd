@@ -101,4 +101,6 @@ p.harm = Dictionary[
 	\e6 -> [218, 255],
 ];
 
+p.pitchArr = [\g4,\gs4,\a4,\as4,\b4,\c5,\cs5,\d5,\ds5,\e5,\f5,\fs5,\g5,\gs5,\a5,\as5,\b5,\c6,\cs6,\d6,\ds6,\e6];
+
 )

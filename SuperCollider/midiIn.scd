@@ -5,7 +5,7 @@ MIDIIn.connectAll;
 
 MIDIdef.freeAll;
 
-MIDIFunc.trace(false);
+MIDIFunc.trace(true);
 
 );
 
@@ -16,6 +16,7 @@ m.sort = \rand;
 var voiceArr = Array.series(8);
 var voiceArrPtr = Array.series(8);
 var keyArr = Array.fill(127, {false});
+var singleKeyArr = Array.newClear(8);
 
 m = (); // create empty event for midi
 m.pitchDict = p.mf;
@@ -49,36 +50,34 @@ m.polyKeyUpp = {
 	});
 };
 
+m.singleKey = {
+	arg self, voice, num, pitchSymb, pitchDict;
+	f.playPitch(voice, pitchSymb, pitchDict);
+	singleKeyArr[voice] = num;
+};
+
+m.singleKeyUp = {
+	arg self, voice, num;
+	if( singleKeyArr[voice] == num, {
+		f.setFanOnOff(voice, \off);
+		singleKeyArr[voice] = nil;
+		m.lcSetToggleLights(voice, \off);
+	});
+};
+
+
 m.input = {
 	MIDIdef.freeAll;
 	MIDIdef.noteOn(\noteOn, {
 		arg val, num, chan, src;
 		switch( chan,
 			0, {
-				switch( num,
-					55, { m.polyKey(num, \g4, p.pp) },
-					56, { m.polyKey(num, \gs4, p.pp) },
-					57, { m.polyKey(num, \a4, m.pitchDict) },
-					58, { m.polyKey(num, \as4, m.pitchDict) },
-					59, { m.polyKey(num, \b4, m.pitchDict) },
-					60, { m.polyKey(num, \c5, m.pitchDict) },
-					61, { m.polyKey(num, \cs5, m.pitchDict) },
-					62, { m.polyKey(num, \d5, m.pitchDict) },
-					63, { m.polyKey(num, \ds5, m.pitchDict) },
-					64, { m.polyKey(num, \e5, m.pitchDict) },
-					65, { m.polyKey(num, \f5, m.pitchDict) },
-					66, { m.polyKey(num, \fs5, m.pitchDict) },
-					67, { m.polyKey(num, \g5, m.pitchDict) },
-					68, { m.polyKey(num, \gs5, m.pitchDict) },
-					69, { m.polyKey(num, \a5, p.harm) },
-					70, { m.polyKey(num, \as5, p.harm) },
-					71, { m.polyKey(num, \b5, p.harm) },
-					72, { m.polyKey(num, \c6, p.harm) },
-					73, { m.polyKey(num, \cs6, p.harm) },
-					74, { m.polyKey(num, \d6, p.harm) },
-					75, { m.polyKey(num, \ds6, p.harm) },
-					76, { m.polyKey(num, \e6, p.harm) },
-				);
+				case
+				{(num >= 55) && (num <= 76)}
+				{
+					var pitchIndex = num - 55;
+					m.polyKey(num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
 			},
 			1, {
 				switch( num,
@@ -99,16 +98,82 @@ m.input = {
 					53, { f.playChord([\a4, \b4], m.pitchDict, m.sort) },
 					52, { f.playChord([\a4], m.pitchDict, m.sort) },
 				);
-		});
+			},
+			2, {
+				case
+				{(num >= 31) && (num <= 52)}
+				{
+					var pitchIndex = num - 31;
+					m.singleKey(0, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+				{(num >= 55) && (num <=76)}
+				{
+					var pitchIndex = num - 55;
+					m.singleKey(1, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+			},
+			3, {
+				case
+				{(num >= 31) && (num <= 52)}
+				{
+					var pitchIndex = num - 31;
+					m.singleKey(2, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+				{(num >= 55) && (num <=76)}
+				{
+					var pitchIndex = num - 55;
+					m.singleKey(3, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+			},
+			4, {
+				case
+				{(num >= 31) && (num <= 52)}
+				{
+					var pitchIndex = num - 31;
+					m.singleKey(4, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+				{(num >= 55) && (num <=76)}
+				{
+					var pitchIndex = num - 55;
+					m.singleKey(5, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+			},
+			5, {
+				case
+				{(num >= 31) && (num <= 52)}
+				{
+					var pitchIndex = num - 31;
+					m.singleKey(6, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+				{(num >= 55) && (num <=76)}
+				{
+					var pitchIndex = num - 55;
+					m.singleKey(7, num, p.pitchArr[pitchIndex], m.pitchDict);
+				}
+			},
+		);
 	});
 	MIDIdef.noteOff(\noteOff, {
 		arg val, num, chan, src;
 		switch( chan,
 			0, { m.polyKeyUpp(num) },
-			1,
-			{
-
-		});
+			2, {
+				var voice = if((num >= 31) && (num <= 52), {0}, {1});
+				m.singleKeyUp( voice, num)
+			},
+			3, {
+				var voice = if((num >= 31) && (num <= 52), {2}, {3});
+				m.singleKeyUp( voice, num)
+			},
+			4, {
+				var voice = if((num >= 31) && (num <= 52), {4}, {5});
+				m.singleKeyUp( voice, num)
+			},
+			5, {
+				var voice = if((num >= 31) && (num <= 52), {6}, {7});
+				m.singleKeyUp( voice, num)
+			},
+		);
 	});
 
 	MIDIdef.cc(\input, {
@@ -118,9 +183,8 @@ m.input = {
 		{
 			if(val == 127, {
 				f.setFanVelRnd(\start);
-				m.launchControlLights(44, 15, 0); // 62 = yellow
-				m.launchControlLights(44, 15, 1); // 60 = green
 				2.do {|template| // do for both first and second user template
+					m.launchControlLights(44, 15, template); // 15 = red
 					m.launchControlToggle(20, 127, template); // toggle off for bottom button
 				};
 			}, {
@@ -135,9 +199,8 @@ m.input = {
 		{
 			if(val == 127, {
 				f.setStepperPosRnd(\start);
-				m.launchControlLights(45, 15, 0); // 62 = yellow
-				m.launchControlLights(45, 15, 1); // 60 = green
 				2.do {|template| // do for both first and second user template
+					m.launchControlLights(45, 15, template); // 15 = red
 					m.launchControlToggle(21, 127, template); // toggle off for bottom button
 				};
 			}, {
@@ -145,6 +208,22 @@ m.input = {
 				2.do {|template| // do for both first and second user template
 					m.launchControlLights(45, 12, template);
 					m.launchControlToggle(21, 0, template); // toggle off for bottom button
+				};
+			});
+		}
+		{num == 76} // track select (=>)
+		{
+			if(val == 127, {
+				f.stepperPosRndInclSilent = true;
+				2.do {|template| // do for both first and second user template
+					m.launchControlLights(47, 15, template); // 15 = red
+					m.launchControlToggle(23, 127, template); // toggle off for bottom button
+				};
+			}, {
+				f.stepperPosRndInclSilent = false;
+				2.do {|template| // do for both first and second user template
+					m.launchControlLights(47, 12, template);
+					m.launchControlToggle(23, 0, template); // toggle off for bottom button
 				};
 			});
 		}
