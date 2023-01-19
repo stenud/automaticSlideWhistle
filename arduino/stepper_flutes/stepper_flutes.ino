@@ -289,7 +289,7 @@ void moveStepper(struct Instrument *instr) {
 
 void calibrateMotorPos(struct Instrument *instr) {
   instr->stepper->moveTo(0);
-  instr->stepper->setSpeed(-instr->speed);
+  instr->stepper->setSpeed(-1000);
 
   while (calibrateMotorPos_bool) {
     bool inv_extended_state = digitalRead(instr->extendedButton);

@@ -160,9 +160,42 @@ var id = 3, val = -1;
 
 -3.abs.neg
 
-f.changeStepperSpeed(106);
-8.do{|id| f.setStepperPos(id, 0) };
-8.do{|id| f.setStepperPos(id, 20) };
+x = 0;
+(
+var speed = 36;
+if( x == 0, {x = 100}, {x = 0});
+f.changeStepperSpeed(speed, nil, true);
+8.do{|id| f.setStepperPos(id, x) };
+)
+
+(
+t = 4;
+x = Routine{
+	f.stepperPitch(0,\a3,t);
+	f.stepperPitch(1,\cs4,t);
+	f.stepperPitch(2,\e4,t);
+	t.wait;
+	f.stepperPitch(0,\a3,t);
+	f.stepperPitch(1,\d4,t);
+	f.stepperPitch(2,\fs4,t);
+	t.wait;
+	f.stepperPitch(0,\gs3,t);
+	f.stepperPitch(1,\d4,t);
+	f.stepperPitch(2,\e4,t);
+	t.wait;
+	f.stepperPitch(0,\a3,t);
+	f.stepperPitch(1,\cs4,t);
+	f.stepperPitch(2,\e4,t);
+	t.wait;
+}.play;
+)
+
+f.playPitch(4,\c5,p.pp);
+f.playPitch(5,\c5,p.pp);
+f.playPitch(6,\g5,p.pp);
+f.playPitch(7,\g5,p.pp);
+x.stop;
+
 
 
 

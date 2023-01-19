@@ -28,6 +28,22 @@ f.play8Pitches = {
 	};
 };
 
+f.playTempo = 240/60;
+
+f.playSeq = {
+	arg self, id, pitchDict, pitchSymbs, noteVals;
+	{
+		pitchSymbs.do{|note, index|
+			if( note != nil, { f.playPitch(id, note, pitchDict) });
+			(noteVals[index] * f.playTempo).wait;
+			if( note != nil, {
+				f.setFanOnOff(id, \off);
+				m.lcSetToggleLights(id, \off);
+			});
+		};
+	}.fork;
+};
+
 f.playChord = { // spreads a pitch array of up to 8 notes on all flutes
 	arg self, pitches, dict, order = \rand;
 	var numPitches, playArr = [], div, mod;
@@ -252,7 +268,7 @@ f.setVelRndMinMax = {
 f.changeStepperSpeedRout = Array.newClear(8);
 
 f.changeStepperSpeed = {
-	arg self, val, id = nil; // val: 0-255
+	arg self, val, id = nil, noDelay = false; // val: 0-255
 	if(id == nil, {
 		8.do{|id|
 			if( f.changeStepperSpeedRout[id] != nil, { // in case it is already running
@@ -260,7 +276,7 @@ f.changeStepperSpeed = {
 				f.changeStepperSpeedRout[id] = nil;
 			});
 			f.changeStepperSpeedRout[id] = Routine {
-				0.2.wait;
+				if( noDelay.not, {0.2.wait});
 				a.sendVal(id+10, val); // speed control: 10-17
 			}.play;
 		};
@@ -270,12 +286,62 @@ f.changeStepperSpeed = {
 			f.changeStepperSpeedRout[id] = nil;
 		});
 		f.changeStepperSpeedRout[id] = Routine {
-			0.2.wait;
+			if( noDelay.not, {0.2.wait});
 			a.sendVal(id+10, val); // speed control: 10-17
 		}.play;
 	});
 };
 
+f.stepperPitch = {
+	arg self, id, pitchSymb, dur;
+	var steps, speed, currentPos, val;
+	speed = p.stepper.at(pitchSymb);
+	f.changeStepperSpeed(speed, id, true);
+	steps = (dur * speed * 0.26144).asInteger;
+	currentPos = stepperPos[id];
 
+	case
+	{(steps < currentPos) && (steps < (255-currentPos))}
+	{
+		val = if(currentPos < 128, {currentPos - steps}, {currentPos + steps});
+		f.setStepperPos(id, val);
+	}
+	{ steps < currentPos }
+	{
+		val = (currentPos - steps);
+		f.setStepperPos(id, val);
+	}
+	{ steps < (255-currentPos) }
+	{
+		val = (currentPos + steps);
+		f.setStepperPos(id, val);
+	}
+	{ true } //default, if steps don't fit in any direction
+	{
+		val = if(currentPos < 128, {255 - currentPos}, {steps - currentPos});
+		f.setStepperPos(id, val);
+	};
+};
+
+f.playTempo = 240/60;
+
+f.stepperPlay = {
+	arg self, id, pitchSymbs, noteVals;
+	{
+		pitchSymbs.do{|note, index|
+			if( note != nil, { f.stepperPitch(id, note, noteVals[index] * f.playTempo) });
+			(noteVals[index] * f.playTempo).wait;
+		};
+	}.fork;
+};
+
+f.multiStepperPlay = {
+	arg self, ids, pitchSymbs, noteVals;
+	ids.do{|id|
+		f.stepperPlay(id, pitchSymbs, noteVals);
+	}
+};
+
+"functions loaded".postln;
 
 )

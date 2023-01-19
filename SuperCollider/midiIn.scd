@@ -383,6 +383,8 @@ m.lcSetToggleLights = {
 };
 
 m.input;
+
+"midi functions loaded".postln;
 )
 
 
