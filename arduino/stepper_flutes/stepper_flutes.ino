@@ -264,7 +264,7 @@ void mapInput(int ctlAndId, int value) {
 }
 
 void wrongInput( int ctlAndId ) {
-  for(int i = 0; i < ctlAndId; i++) {
+  for(int i = 0; i < 5; i++) {
     digitalWrite(13, HIGH);
     delay(500);
     digitalWrite(13, LOW);

@@ -1,6 +1,7 @@
 (
 MIDIClient.init;
 MIDIIn.connectAll;
+~mOut = MIDIOut.newByName("IAC-drivrutin", "Buss 1");
 )
 
 MIDIdef.freeAll;
@@ -9,19 +10,26 @@ MIDIFunc.trace(false);
 
 );
 
-m.pitchDict = p.mp;
+m.pitchDict = p.harm;
 m.sort = \rand;
+m.invSource = m.abletonLive + 1; // add 1 to include ableton live
 
 (
 var voiceArr = Array.series(8);
 var voiceArrPtr = Array.series(8);
 var keyArr = Array.fill(127, {false});
 var singleKeyArr = Array.newClear(8);
+var tiltVal = 0;
 
 m = (); // create empty event for midi
-m.pitchDict = p.mf;
+m.pitchDict = p.mp;
 m.sort = \sort;
 m.numVoices = 8;
+m.arturiaKb = -534250198;
+m.launchCtl = -1789944110;
+m.launchPad = 657075957;
+m.abletonLive = -582270935;
+m.invSource = m.abletonLive + 1;
 
 m.polyKey = {
 	arg self, num, pitchSymb, pitchDict;
@@ -70,284 +78,309 @@ m.input = {
 	MIDIdef.freeAll;
 	MIDIdef.noteOn(\noteOn, {
 		arg val, num, chan, src;
-		switch( chan,
-			0, {
-				case
-				{(num >= 55) && (num <= 76)}
-				{
-					var pitchIndex = num - 55;
-					m.polyKey(num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-			},
-			1, {
-				switch( num,
-					67, { f.playChord([\fs5, \g5, \gs5, \a5, \as5, \b5, \c6, \cs6], m.pitchDict, m.sort) },
-					66, { f.playChord([\f5, \fs5, \g5, \gs5, \a5, \as5, \b5, \c6], m.pitchDict, m.sort) },
-					65, { f.playChord([\e5, \f5, \fs5, \g5, \gs5, \a5, \as5, \b5], m.pitchDict, m.sort) },
-					64, { f.playChord([\ds5, \e5, \f5, \fs5, \g5, \gs5, \a5, \as5], m.pitchDict, m.sort) },
-					63, { f.playChord([\d5, \ds5, \e5, \f5, \fs5, \g5, \gs5, \a5], m.pitchDict, m.sort) },
-					62, { f.playChord([\cs5, \d5, \ds5, \e5, \f5, \fs5, \g5, \gs5], m.pitchDict, m.sort) },
-					61, { f.playChord([\c5, \cs5, \d5, \ds5, \e5, \f5, \fs5, \g5], m.pitchDict, m.sort) },
-					60, { f.playChord([\b4, \c5, \cs5, \d5, \ds5, \e5, \f5, \fs5], m.pitchDict, m.sort) },
-					59, { f.playChord([\a4, \b4, \c5, \cs5, \d5, \ds5, \e5, \f5], m.pitchDict, m.sort) },
-					58, { f.playChord([\a4, \b4, \c5, \cs5, \d5, \ds5, \e5], m.pitchDict, m.sort) },
-					57, { f.playChord([\a4, \b4, \c5, \cs5, \d5, \ds5], m.pitchDict, m.sort) },
-					56, { f.playChord([\a4, \b4, \c5, \cs5, \d5], m.pitchDict, m.sort) },
-					55, { f.playChord([\a4, \b4, \c5, \cs5], m.pitchDict, m.sort) },
-					54, { f.playChord([\a4, \b4, \c5], m.pitchDict, m.sort) },
-					53, { f.playChord([\a4, \b4], m.pitchDict, m.sort) },
-					52, { f.playChord([\a4], m.pitchDict, m.sort) },
-				);
-			},
-			2, {
-				case
-				{(num >= 31) && (num <= 52)}
-				{
-					var pitchIndex = num - 31;
-					m.singleKey(0, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-				{(num >= 55) && (num <=76)}
-				{
-					var pitchIndex = num - 55;
-					m.singleKey(1, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-			},
-			3, {
-				case
-				{(num >= 31) && (num <= 52)}
-				{
-					var pitchIndex = num - 31;
-					m.singleKey(2, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-				{(num >= 55) && (num <=76)}
-				{
-					var pitchIndex = num - 55;
-					m.singleKey(3, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-			},
-			4, {
-				case
-				{(num >= 31) && (num <= 52)}
-				{
-					var pitchIndex = num - 31;
-					m.singleKey(4, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-				{(num >= 55) && (num <=76)}
-				{
-					var pitchIndex = num - 55;
-					m.singleKey(5, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-			},
-			5, {
-				case
-				{(num >= 31) && (num <= 52)}
-				{
-					var pitchIndex = num - 31;
-					m.singleKey(6, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-				{(num >= 55) && (num <=76)}
-				{
-					var pitchIndex = num - 55;
-					m.singleKey(7, num, p.pitchArr[pitchIndex], m.pitchDict);
-				}
-			},
-		);
+		if( src != m.invSource, {
+			switch( chan,
+				0, {
+					case
+					{(num >= 55) && (num <= 76)}
+					{
+						var pitchIndex = num - 55;
+						m.polyKey(num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+				},
+				1, {
+					switch( num,
+						67, { f.playChord([\fs5, \g5, \gs5, \a5, \as5, \b5, \c6, \cs6], m.pitchDict, m.sort) },
+						66, { f.playChord([\f5, \fs5, \g5, \gs5, \a5, \as5, \b5, \c6], m.pitchDict, m.sort) },
+						65, { f.playChord([\e5, \f5, \fs5, \g5, \gs5, \a5, \as5, \b5], m.pitchDict, m.sort) },
+						64, { f.playChord([\ds5, \e5, \f5, \fs5, \g5, \gs5, \a5, \as5], m.pitchDict, m.sort) },
+						63, { f.playChord([\d5, \ds5, \e5, \f5, \fs5, \g5, \gs5, \a5], m.pitchDict, m.sort) },
+						62, { f.playChord([\cs5, \d5, \ds5, \e5, \f5, \fs5, \g5, \gs5], m.pitchDict, m.sort) },
+						61, { f.playChord([\c5, \cs5, \d5, \ds5, \e5, \f5, \fs5, \g5], m.pitchDict, m.sort) },
+						60, { f.playChord([\b4, \c5, \cs5, \d5, \ds5, \e5, \f5, \fs5], m.pitchDict, m.sort) },
+						59, { f.playChord([\a4, \b4, \c5, \cs5, \d5, \ds5, \e5, \f5], m.pitchDict, m.sort) },
+						58, { f.playChord([\a4, \b4, \c5, \cs5, \d5, \ds5, \e5], m.pitchDict, m.sort) },
+						57, { f.playChord([\a4, \b4, \c5, \cs5, \d5, \ds5], m.pitchDict, m.sort) },
+						56, { f.playChord([\a4, \b4, \c5, \cs5, \d5], m.pitchDict, m.sort) },
+						55, { f.playChord([\a4, \b4, \c5, \cs5], m.pitchDict, m.sort) },
+						54, { f.playChord([\a4, \b4, \c5], m.pitchDict, m.sort) },
+						53, { f.playChord([\a4, \b4], m.pitchDict, m.sort) },
+						52, { f.playChord([\a4], m.pitchDict, m.sort) },
+						99, { f.setStepperRelative(10) },
+						98, { f.setStepperRelative(-10) },
+						97, { f.setStepperTilt(\lin, tiltVal ) },
+						96, { f.setStepperTilt(\lin, tiltVal * -1 ) },
+						95, { f.setStepperRelative(5) },
+						94, { f.setStepperRelative(-5) },
+						93, { f.setStepperTilt(\peak, tiltVal ) },
+						92, { f.setStepperTilt(\peak, tiltVal * -1 ) },
+						90, { f.setStepperTilt(\lin, 0 ) },
+						89, { f.setStepperTilt(\zigzag, tiltVal ) },
+						88, { f.setStepperTilt(\zigzag, tiltVal * -1 ) },
+						87, { tiltVal = 0.7 },
+						86, { tiltVal = 0.5 },
+						85, { tiltVal = 0.3 },
+						84, { tiltVal = 0.2 },
+					);
+				},
+				2, {
+					case
+					{(num >= 31) && (num <= 52)}
+					{
+						var pitchIndex = num - 31;
+						m.singleKey(0, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+					{(num >= 55) && (num <=76)}
+					{
+						var pitchIndex = num - 55;
+						m.singleKey(1, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+				},
+				3, {
+					case
+					{(num >= 31) && (num <= 52)}
+					{
+						var pitchIndex = num - 31;
+						m.singleKey(2, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+					{(num >= 55) && (num <=76)}
+					{
+						var pitchIndex = num - 55;
+						m.singleKey(3, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+				},
+				4, {
+					case
+					{(num >= 31) && (num <= 52)}
+					{
+						var pitchIndex = num - 31;
+						m.singleKey(4, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+					{(num >= 55) && (num <=76)}
+					{
+						var pitchIndex = num - 55;
+						m.singleKey(5, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+				},
+				5, {
+					case
+					{(num >= 31) && (num <= 52)}
+					{
+						var pitchIndex = num - 31;
+						m.singleKey(6, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+					{(num >= 55) && (num <=76)}
+					{
+						var pitchIndex = num - 55;
+						m.singleKey(7, num, p.pitchArr[pitchIndex], m.pitchDict);
+					}
+				},
+			);
+		});
 	});
 	MIDIdef.noteOff(\noteOff, {
 		arg val, num, chan, src;
-		switch( chan,
-			0, { m.polyKeyUpp(num) },
-			2, {
-				var voice = if((num >= 31) && (num <= 52), {0}, {1});
-				m.singleKeyUp( voice, num)
-			},
-			3, {
-				var voice = if((num >= 31) && (num <= 52), {2}, {3});
-				m.singleKeyUp( voice, num)
-			},
-			4, {
-				var voice = if((num >= 31) && (num <= 52), {4}, {5});
-				m.singleKeyUp( voice, num)
-			},
-			5, {
-				var voice = if((num >= 31) && (num <= 52), {6}, {7});
-				m.singleKeyUp( voice, num)
-			},
-		);
+		if( src != m.invSource, {
+			switch( chan,
+				0, { m.polyKeyUpp(num) },
+				2, {
+					var voice = if((num >= 31) && (num <= 52), {0}, {1});
+					m.singleKeyUp( voice, num)
+				},
+				3, {
+					var voice = if((num >= 31) && (num <= 52), {2}, {3});
+					m.singleKeyUp( voice, num)
+				},
+				4, {
+					var voice = if((num >= 31) && (num <= 52), {4}, {5});
+					m.singleKeyUp( voice, num)
+				},
+				5, {
+					var voice = if((num >= 31) && (num <= 52), {6}, {7});
+					m.singleKeyUp( voice, num)
+				},
+			);
+		});
 	});
 
 	MIDIdef.cc(\input, {
 		arg val, num, chan, src;
-		case // independent of channel / user template
-		{num == 77} // send select (up)
-		{
-			if(val == 127, {
-				f.setFanVelRnd(\start);
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(44, 15, template); // 15 = red
-					m.launchControlToggle(20, 127, template); // toggle off for bottom button
-				};
-			}, {
-				f.setFanVelRnd(\stop);
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(44, 12, template);
-					m.launchControlToggle(20, 0, template); // toggle off for bottom button
-				};
-			});
-		}
-		{num == 78} // send select (down)
-		{
-			if(val == 127, {
-				f.setStepperPosRnd(\start);
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(45, 15, template); // 15 = red
-					m.launchControlToggle(21, 127, template); // toggle off for bottom button
-				};
-			}, {
-				f.setStepperPosRnd(\stop);
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(45, 12, template);
-					m.launchControlToggle(21, 0, template); // toggle off for bottom button
-				};
-			});
-		}
-		{num == 76} // track select (=>)
-		{
-			if(val == 127, {
-				f.stepperPosRndInclSilent = true;
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(47, 15, template); // 15 = red
-					m.launchControlToggle(23, 127, template); // toggle off for bottom button
-				};
-			}, {
-				f.stepperPosRndInclSilent = false;
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(47, 12, template);
-					m.launchControlToggle(23, 0, template); // toggle off for bottom button
-				};
-			});
-		}
-		{(num >= 21) && (num <= 28)}
-		{
-			var id = num - 21;
-			if(val == 127, {
-				f.setFanOnOff(id, \on);
-				m.launchControlLights(id+24, 62, 0); // index 24-31, 62 = yellow
-				m.launchControlLights(id+24, 60, 1); // index 24-31, 60 = green
-			},{
-				f.setFanOnOff(id, \off);
-				2.do {|template| // do for both first and second user template
-					m.launchControlLights(id+24, 12, template); // index 24-31
-					m.launchControlToggle(id+8, 0, template); // toggle off for bottom button, index 8-15
-					m.launchControlLights(id+32, 12, template); // toggle off for bottom button, index 32-39
-				};
-			})
-		}
-		{(num >= 11) && (num <= 18)}
-		{
-			var id = num - 11;
-			if(val == 127, {
-				f.setFanOnOff(id, \on);
-				m.lcSetToggleLights(id, \on);
-			}, {
-				f.setFanOnOff(id, \off);
-				m.lcSetToggleLights(id, \off);
-			});
-		}
-		{num == 74} {a.sendVal(9, 0)}; // re-calibrate motor pos
+		if( src != m.invSource, {
+			case // independent of channel / user template
+			{num == 77} // send select (up)
+			{
+				if(val == 127, {
+					f.setFanVelRnd(\start);
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(44, 15, template); // 15 = red
+						m.launchControlToggle(20, 127, template); // toggle off for bottom button
+					};
+				}, {
+					f.setFanVelRnd(\stop);
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(44, 12, template);
+						m.launchControlToggle(20, 0, template); // toggle off for bottom button
+					};
+				});
+			}
+			{num == 78} // send select (down)
+			{
+				if(val == 127, {
+					f.setStepperPosRnd(\start);
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(45, 15, template); // 15 = red
+						m.launchControlToggle(21, 127, template); // toggle off for bottom button
+					};
+				}, {
+					f.setStepperPosRnd(\stop);
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(45, 12, template);
+						m.launchControlToggle(21, 0, template); // toggle off for bottom button
+					};
+				});
+			}
+			{num == 76} // track select (=>)
+			{
+				if(val == 127, {
+					f.stepperPosRndInclSilent = true;
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(47, 15, template); // 15 = red
+						m.launchControlToggle(23, 127, template); // toggle off for bottom button
+					};
+				}, {
+					f.stepperPosRndInclSilent = false;
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(47, 12, template);
+						m.launchControlToggle(23, 0, template); // toggle off for bottom button
+					};
+				});
+			}
+			{(num >= 21) && (num <= 28)}
+			{
+				var id = num - 21;
+				if(val == 127, {
+					f.setFanOnOff(id, \on);
+					m.launchControlLights(id+24, 62, 0); // index 24-31, 62 = yellow
+					m.launchControlLights(id+24, 60, 1); // index 24-31, 60 = green
+				},{
+					f.setFanOnOff(id, \off);
+					2.do {|template| // do for both first and second user template
+						m.launchControlLights(id+24, 12, template); // index 24-31
+						m.launchControlToggle(id+8, 0, template); // toggle off for bottom button, index 8-15
+						m.launchControlLights(id+32, 12, template); // toggle off for bottom button, index 32-39
+					};
+				})
+			}
+			{(num >= 11) && (num <= 18)}
+			{
+				var id = num - 11;
+				if(val == 127, {
+					f.setFanOnOff(id, \on);
+					m.lcSetToggleLights(id, \on);
+				}, {
+					f.setFanOnOff(id, \off);
+					m.lcSetToggleLights(id, \off);
+				});
+			}
+			{(num == 74) && (val == 127)} {a.sendVal(9, 0)}; // re-calibrate motor pos
 
-		switch( chan,
-			0, {
-				switch( num,
-					61, {
-						8.do {|id|
-							if(f.fanOnOff[id], {
-								f.setFanVel(id, val.linlin(0,127,0,255).asInteger);
-							}, {
-								f.setFanVelSilent(id, val.linlin(0,127,0,255).asInteger);
-							});
-						};
-					},
-					51, {
-						8.do {|id|
-							f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
-						};
-					},
-					41, {
-						8.do {|id|
-							f.setStepperPosRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
-						};
-					},
-					31, {
-						8.do {|id|
-							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					32, {
-						4.do {|id|
-							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					33, {
-						4.do {|id|
-							f.setStepperPos( id+4, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					35, {
-						2.do {|id|
-							f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					36, {
-						2.do {|id|
-							f.setStepperPos( id+2, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					37, {
-						2.do {|id|
-							f.setStepperPos( id+4, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					38, {
-						2.do {|id|
-							f.setStepperPos( id+6, val.linlin(0,127,0,255).asInteger )
-						};
-					},
-					42, { f.setStepperTilt(\lin, val.linlin(0,127,-1.0,1.0) ) },
-					52, { f.setStepperTilt(\peak, val.linlin(0,127,-1.0,1.0) ) },
-					62, { f.setStepperTilt(\zigzag, val.linlin(0,127,-1.0,1.0) ) },
-					63, { f.changeStepperSpeed(val.linlin(0,127,0,255).asInteger) },
-				);
-			},
-			1, {
-				case
-				{(num >= 61) && (num <= 68)}
-				{
-					var id = num - 61;
-					if(f.fanOnOff[id], {
-						f.setFanVel(id, val.linlin(0,127,0,255).asInteger);
-					}, {
-						f.setFanVelSilent(id, val.linlin(0,127,0,255).asInteger);
-					});
-				}
-				{(num >= 51) && (num <= 58)}
-				{
-					var id = num - 51;
-					f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
-				}
-				{(num >= 41) && (num <= 48)}
-				{
-					var id = num - 41;
-					f.setStepperPosRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
-				}
-				{(num >= 31) && (num <= 38)}
-				{
-					var id = num - 31;
-					f.setStepperPos( id, val.linlin(0,127,0,255).asInteger )
-				};
-			},
-		);
-
+			switch( chan,
+				0, {
+					switch( num,
+						61, {
+							8.do {|id|
+								if(f.fanOnOff[id], {
+									f.setFanVel(id, val.linlin(0,127,0,255).asInteger);
+								}, {
+									f.setFanVelSilent(id, val.linlin(0,127,0,255).asInteger);
+								});
+							};
+						},
+						51, {
+							8.do {|id|
+								f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
+							};
+						},
+						41, {
+							8.do {|id|
+								f.setStepperPosRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
+							};
+						},
+						30, {
+							8.do {|id|
+								f.setStepperPos( id, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						31, {
+							4.do {|id|
+								f.setStepperPos( id, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						33, {
+							4.do {|id|
+								f.setStepperPos( id+4, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						35, {
+							2.do {|id|
+								f.setStepperPos( id, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						36, {
+							2.do {|id|
+								f.setStepperPos( id+2, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						37, {
+							2.do {|id|
+								f.setStepperPos( id+4, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						38, {
+							2.do {|id|
+								f.setStepperPos( id+6, val.linlin(0,127,0,250).asInteger )
+							};
+						},
+						42, { if(val > 0, { f.setStepperTilt(\lin, val.linlin(0,127,-1.0,1.0) ) }) },
+						52, { if(val > 0, { f.setStepperTilt(\peak, val.linlin(0,127,-1.0,1.0) ) }) },
+						62, { if(val > 0, { f.setStepperTilt(\zigzag, val.linlin(0,127,-1.0,1.0) ) }) },
+						63, { f.changeStepperSpeed(val.linlin(0,127,0,255).asInteger) },
+					);
+				},
+				1, {
+					case
+					{(num >= 61) && (num <= 68)}
+					{
+						var id = num - 61;
+						if(f.fanOnOff[id], {
+							f.setFanVel(id, val.linlin(0,127,0,255).asInteger);
+						}, {
+							f.setFanVelSilent(id, val.linlin(0,127,0,255).asInteger);
+						});
+					}
+					{(num >= 51) && (num <= 58)}
+					{
+						var id = num - 51;
+						f.setVelRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
+					}
+					{(num >= 41) && (num <= 48)}
+					{
+						var id = num - 41;
+						f.setStepperPosRndMinMax(id, val.linlin(0,127,0,127) ).asInteger;
+					}
+					{(num >= 30) && (num <= 31)}
+					{
+						var id = num - 30;
+						f.setStepperPos( id, val.linlin(0,127,0,250).asInteger )
+					}
+					{(num >= 33) && (num <= 38)}
+					{
+						var id = num - 31;
+						f.setStepperPos( id, val.linlin(0,127,0,250).asInteger )
+					};
+				},
+			);
+		});
 	});
 };
 

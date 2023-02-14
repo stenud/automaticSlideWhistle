@@ -196,6 +196,31 @@ f.playPitch(6,\g5,p.pp);
 f.playPitch(7,\g5,p.pp);
 x.stop;
 
+(
+x = Routine {
+
+}.play
+)
+x.stop
+
+f.changeStepperSpeed(255, nil, true);
+
+(
+x = Routine {
+	10.do {
+		~mOut.control(0, 61, 100);
+		1.wait;
+		~mOut.control(0, 61, 127);
+		1.5.wait;
+	}
+}.play;
+)
+x.stop;
+
+
+
+
+
 
 
 

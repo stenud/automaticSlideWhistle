@@ -76,7 +76,7 @@ f.fanOnOff = Array.fill(8,{false});
 f.setStepperPosRout = Array.fill(8, {nil});
 
 f.setStepperPos = { // id must be 0-7 and val 0-255
-	arg self, id, val;
+	arg self, id, val, noDelay = false;
 	if(val != nil, {
 		if(val < stepperPos[id], {
 			stepperPos[id] = (val - 3).max(0); // move slightly further if coming from above
@@ -89,13 +89,22 @@ f.setStepperPos = { // id must be 0-7 and val 0-255
 		f.setStepperPosRout[id] = nil;
 	});
 	f.setStepperPosRout[id] = Routine {
-		0.05.wait;
+		if( noDelay.not, {0.05.wait});
 		if( stepperTilt.not, {
 			a.sendVal(id, (stepperPos[id] + stepperPosRnd[id]).max(0).min(255).asInteger );
 		}, {
 			a.sendVal(id, ((stepperPos[id] + stepperTiltVals[id]).max(0).min(255) + stepperPosRnd[id]).max(0).min(255).asInteger );
 		});
 	}.play;
+};
+
+f.setStepperRelative = {
+	arg self, val, id = nil;
+	if( id != nil, {
+		f.setStepperPos(id, (stepperPos[id] + val).max(0).min(255).asInteger, true);
+	}, {
+		8.do{|id| f.setStepperPos(id, (stepperPos[id] + val).max(0).min(255).asInteger, true) };
+	});
 };
 
 f.setStepperTilt = {
