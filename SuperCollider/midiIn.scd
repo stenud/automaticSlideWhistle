@@ -8,9 +8,7 @@ MIDIdef.freeAll;
 
 MIDIFunc.trace(false);
 
-);
-
-m.pitchDict = p.harm;
+m.pitchDict = p.mf;
 m.sort = \rand;
 m.invSource = m.abletonLive + 1; // add 1 to include ableton live
 
@@ -22,7 +20,7 @@ var singleKeyArr = Array.newClear(8);
 var tiltVal = 0;
 
 m = (); // create empty event for midi
-m.pitchDict = p.mp;
+m.pitchDict = p.mf;
 m.sort = \sort;
 m.numVoices = 8;
 m.arturiaKb = -534250198;
@@ -207,6 +205,14 @@ m.input = {
 		arg val, num, chan, src;
 		if( src != m.invSource, {
 			case // independent of channel / user template
+			{num == 100 } // changing pitch dictrionary
+			{
+				switch( val,
+					1, { m.pitchDict = p.mf; "m.pitchDict = p.mf".postln; },
+					2, { m.pitchDict = p.mpHarm; "m.pitchDict = p.mpHarm".postln; },
+					3, { m.pitchDict = p.harm; "m.pitchDict = p.harm".postln; }
+				);
+			}
 			{num == 77} // send select (up)
 			{
 				if(val == 127, {

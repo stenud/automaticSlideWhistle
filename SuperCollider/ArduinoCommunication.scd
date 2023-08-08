@@ -4,7 +4,7 @@ SerialPort.devices; //returns an array of available device.
 a = (); // create empty event for arduino control
 
 a.port = SerialPort(
-	"/dev/cu.usbmodem11143101", //CHANGE TO CORRECT ADDRESS. RUN "SerialPort.devices" ABOVE TO FIND THE ADDRESS.
+	"/dev/cu.usbmodem1401", //CHANGE TO CORRECT ADDRESS. RUN "SerialPort.devices" ABOVE TO FIND THE ADDRESS.
 	baudrate: 115200,
 	crtscts: true; );
 

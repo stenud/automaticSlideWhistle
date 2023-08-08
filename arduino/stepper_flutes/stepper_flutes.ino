@@ -258,8 +258,8 @@ void mapInput(int ctlAndId, int value) {
     case 9:
       calibrateMotorPos_bool = true; // re-calibrate motor pos
       break;
-    default:
-      wrongInput(ctlAndId);
+    //default:
+    //  wrongInput(ctlAndId);
   }
 }
 

@@ -8,6 +8,9 @@ var stepperPosRnd = Array.fill(8, {0});
 var stepperTilt = false;
 var stepperTiltVals = Array.fill(8, {1.0});
 
+MIDIClient.init;
+MIDIIn.connectAll;
+
 f = (); // create empty event for functions
 
 f.playPitch = {

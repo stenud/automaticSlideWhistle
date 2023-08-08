@@ -1,7 +1,7 @@
 (
 ~mod = ();
 
-~mod.motorOctaces = {
+~mod.motorOctaves = {
 
 };
 

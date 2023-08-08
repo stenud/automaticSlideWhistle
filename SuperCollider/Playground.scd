@@ -1,6 +1,6 @@
 a.sendVal(0, 200); // stepper position
 a.sendVal(20, 0); // air speed
-a.sendVal(10, 255); // stepper speed
+a.sendVal(18, 255); // stepper speed
 
 a.sendVal(9, 0); // re-calibrate motor pos
 
